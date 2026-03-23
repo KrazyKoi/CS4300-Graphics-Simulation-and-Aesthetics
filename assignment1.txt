@@ -1,0 +1,24 @@
+// PRESS CTRL+ENTER TO RELOAD SHADER
+// reference at https://github.com/charlieroberts/wgsl_live
+@fragment 
+fn fs( @builtin(position) pos : vec4f ) -> @location(0) vec4f {
+  // get normalized texture coordinates (aka uv) in range 0-1
+  var p = uvN( pos.xy );
+	p.x += sin( seconds() / 2) * .25;
+	p.y += cos( seconds() / 2) * .125;
+
+
+  let ps = vec2f(0.5, 0.5) - p;
+	let r = length(ps)*10.0;
+	let a = atan2(ps.y, ps.x + sin(seconds()/2.)/8.5)/(cos(seconds()/30.)+0.25);
+	let f : f32 = cos(a*3. + (seconds() * 4));
+	var shape = vec4f(1.0 - smoothstep(f, f+0.02,r));
+
+	let feedback = lastframe( rotate( uvN( pos.xy ), seconds()/16) 
+* 0.975 + tan(seconds()/60));
+	var out = shape + feedback * 0.55;
+
+	out.r += sin( seconds() / 4) * 0.05;
+	out.g += cos( seconds() / 4) * 0.05;
+	return out;
+}
